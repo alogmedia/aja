@@ -87,7 +87,7 @@
         // Function to fetch the latest DKK exchange rate
         async function fetchDKKExchangeRate() {
             try {
-                const response = await fetch("http://apilayer.net/api/live?access_key=754017ef1a3b1139915e65c19c293c39&source=USD");
+                const response = await fetch("");
                 const data = await response.json();
                 console.log(data);
                 if (data.success) {
