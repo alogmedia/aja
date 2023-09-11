@@ -45,6 +45,18 @@
             cursor: pointer;
         }
 
+        #omst {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        #annonce {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+        #spend {
+            margin-top: 20px;
+            font-size: 18px;
+        }
         #result {
             margin-top: 20px;
             font-size: 18px;
@@ -63,16 +75,46 @@
 
         <label for="productSpend">Product Spend (USD to DKK):</label>
         <input type="number" id="productSpend" step="0.01"><br><br>
-
+        <form id="exchangeRateForm" action="api.php" method="POST">
+            <input type="hidden" id="exchangeRate" name="exchangeRate">
+        </form>
         <button onclick="calculate()">Calculate</button>
+        <div id="omst"></div>
+        <div id="annonce"></div>
+        <div id="spend"></div>
         <div id="result"></div>
     </div>
 
     <script>
-        function calculate() {
+        // Function to fetch the latest DKK exchange rate
+        async function fetchDKKExchangeRate() {
+            try {
+                const response = await fetch("http://apilayer.net/api/live?access_key=754017ef1a3b1139915e65c19c293c39&source=USD");
+                const data = await response.json();
+                console.log(data);
+                if (data.success) {
+                    return data.quotes.USDDKK;
+                } else {
+                    console.error("Error fetching DKK exchange rate:", data.error.info);
+                    return null;
+                }
+            } catch (error) {
+                console.error("Error fetching DKK exchange rate:", error);
+                return null;
+            }
+        }
+
+        async function calculate() {
             const revenueInput = document.getElementById("revenue");
             const adsInput = document.getElementById("ads");
             const productSpendInput = document.getElementById("productSpend");
+
+            const dkkExchangeRate = await fetchDKKExchangeRate();
+
+            if (dkkExchangeRate === null) {
+                alert("Unable to fetch the DKK exchange rate. Please try again later.");
+                return;
+            }
 
             // Sanitize inputs to prevent potential XSS
             const revenueUSD = parseFloat(revenueInput.value);
@@ -86,12 +128,19 @@
             }
 
             // Prevent SQL Injection by not directly using input in SQL queries
-            const revenueDKK = revenueUSD * 7;
-            const productSpendDKK = productSpendUSD * 7;
+            const revenueDKK = revenueUSD * dkkExchangeRate;
+            const productSpendDKK = productSpendUSD * dkkExchangeRate;
             const profit = revenueDKK - (adsDKK + productSpendDKK);
-
+            document.getElementById("omst").innerHTML = `Omsætning: ${revenueDKK.toFixed(2)} DKK`;
+            document.getElementById("annonce").innerHTML = `Annonce beløb: ${adsDKK.toFixed(2)} DKK`;
+            document.getElementById("spend").innerHTML = `Produkt Pris: ${productSpendDKK.toFixed(2)} DKK`;
             document.getElementById("result").innerHTML = `Profit: ${profit.toFixed(2)} DKK`;
         }
+    </script>
+     <script>
+        window.onload = function() {
+            calculate();
+        };
     </script>
 </body>
 </html>
