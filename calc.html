@@ -65,8 +65,6 @@
         <input type="number" id="productSpend" step="0.01"><br><br>
 
         <button onclick="calculate()">Calculate</button>
-        <div id="omst"></div>
-        <div id="annonce"></div>
         <div id="result"></div>
     </div>
 
@@ -91,8 +89,7 @@
             const revenueDKK = revenueUSD * 7;
             const productSpendDKK = productSpendUSD * 7;
             const profit = revenueDKK - (adsDKK + productSpendDKK);
-            document.getElementById("omst").innerHTML = `Omsætning: ${revenueDKK.toFixed(2)} DKK`;
-            document.getElementById("annonce").innerHTML = `Annonce beløb: ${adsDKK.toFixed(2)} DKK`;
+
             document.getElementById("result").innerHTML = `Profit: ${profit.toFixed(2)} DKK`;
         }
     </script>
